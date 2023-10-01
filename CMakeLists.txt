@@ -5,9 +5,11 @@ cmake_minimum_required (VERSION 3.8)
 
 project (Algorithms)
 
-# Include sub-projects.
 
 # Add vendor projects
+add_subdirectory("vendor/googletest")
+add_subdirectory("vendor/benchmark")
 
-
-# Add algorithms
+# Include sub-projects.
+add_subdirectory ("algorithms")
+add_subdirectory ("benchmarks")

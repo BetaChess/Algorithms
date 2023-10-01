@@ -1,0 +1,8 @@
+//
+// Created by betachess on 28/09/23.
+//
+
+#ifndef ALGORITHMS_CONTAINER_CONCEPTS_H
+#define ALGORITHMS_CONTAINER_CONCEPTS_H
+
+#endif //ALGORITHMS_CONTAINER_CONCEPTS_H
