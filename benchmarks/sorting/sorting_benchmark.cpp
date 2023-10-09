@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <sstream>
+#include <iostream>
 
 #include "../../algorithms/sorting/insertion_sort/insertion_sort.h"
 #include "../../algorithms/sorting/heap_sort/heap_sort.h"
@@ -57,15 +58,12 @@ void shuffleVector_random(std::vector<int32_t>& v, uint32_t& seed)
 static void BM_StdSort_Sorted_Unique(benchmark::State& state)
 {
     state.SetLabel((std::stringstream{} << state.range(0)).str());
+	std::vector<int32_t> l;
+	populateVector_sequential(l, 0, state.range(0));
+
 
 	for (auto _ : state)
 	{
-		std::vector<int32_t> l;
-		populateVector_sequential(l, 0, state.range(0));
-
-		benchmark::DoNotOptimize(l);
-		benchmark::ClobberMemory();
-
 		auto start = std::chrono::high_resolution_clock::now();
 		std::sort(l.begin(), l.end());
 		auto end = std::chrono::high_resolution_clock::now();
@@ -79,12 +77,11 @@ BENCHMARK(BM_StdSort_Sorted_Unique)->RangeMultiplier(2)->Range(0, 1 << 17)->Dens
 static void BM_StdSort_ReverseSorted_Unique(benchmark::State& state)
 {
     state.SetLabel((std::stringstream{} << state.range(0)).str());
+	std::vector<int32_t> l;
+	populateVector_sequential(l, 0, state.range(0));
 
 	for (auto _ : state)
 	{
-		std::vector<int32_t> l;
-		populateVector_sequential(l, 0, state.range(0));
-
 		std::reverse(l.begin(), l.end());
 
 		auto start = std::chrono::high_resolution_clock::now();
@@ -102,11 +99,11 @@ static void BM_StdSort_Random_Unique(benchmark::State& state)
     state.SetLabel((std::stringstream{} << state.range(0)).str());
 
 	uint32_t seed = STARTSEED;
-	
+	std::vector<int32_t> l;
+	populateVector_sequential(l, 0, state.range(0));
+
 	for (auto _ : state)
 	{
-		std::vector<int32_t> l;
-		populateVector_sequential(l, 0, state.range(0));
 		shuffleVector_random(l, seed);
 
 		auto start = std::chrono::high_resolution_clock::now();
@@ -125,12 +122,11 @@ BENCHMARK(BM_StdSort_Random_Unique)->RangeMultiplier(2)->Range(0, 1 << 17)->Dens
 static void BM_InsertionSort_Sorted_Unique(benchmark::State& state)
 {
     state.SetLabel((std::stringstream{} << state.range(0)).str());
+	std::vector<int32_t> l;
+	populateVector_sequential(l, 0, state.range(0));
 
 	for (auto _ : state)
 	{
-		std::vector<int32_t> l;
-		populateVector_sequential(l, 0, state.range(0));
-
 		auto start = std::chrono::high_resolution_clock::now();
 		wmv::algorithms::insertion_sort(l);
 		auto end = std::chrono::high_resolution_clock::now();
@@ -144,12 +140,11 @@ BENCHMARK(BM_InsertionSort_Sorted_Unique)->RangeMultiplier(2)->Range(0, 1 << 17)
 static void BM_InsertionSort_ReverseSorted_Unique(benchmark::State& state)
 {
     state.SetLabel((std::stringstream{} << state.range(0)).str());
+	std::vector<int32_t> l;
+	populateVector_sequential(l, 0, state.range(0));
 
 	for (auto _ : state)
 	{
-		std::vector<int32_t> l;
-		populateVector_sequential(l, 0, state.range(0));
-
 		std::reverse(l.begin(), l.end());
 
 		auto start = std::chrono::high_resolution_clock::now();
@@ -168,11 +163,11 @@ static void BM_InsertionSort_Random_Unique(benchmark::State& state)
 
 	uint32_t seed = STARTSEED;
 
+	std::vector<int32_t> l;
+	populateVector_sequential(l, 0, state.range(0));
+
 	for (auto _ : state)
 	{
-		std::vector<int32_t> l;
-		populateVector_sequential(l, 0, state.range(0));
-
 		shuffleVector_random(l, seed);
 
 		auto start = std::chrono::high_resolution_clock::now();
@@ -191,11 +186,11 @@ static void BM_HeapSort_Sorted_Unique(benchmark::State& state)
 {
     state.SetLabel((std::stringstream{} << state.range(0)).str());
 
+	std::vector<int32_t> l;
+	populateVector_sequential(l, 0, state.range(0));
+
 	for (auto _ : state)
 	{
-		std::vector<int32_t> l;
-		populateVector_sequential(l, 0, state.range(0));
-
 		auto start = std::chrono::high_resolution_clock::now();
 		wmv::algorithms::heap_sort(l);
 		auto end = std::chrono::high_resolution_clock::now();
@@ -210,11 +205,11 @@ static void BM_HeapSort_ReverseSorted_Unique(benchmark::State& state)
 {
     state.SetLabel((std::stringstream{} << state.range(0)).str());
 
+	std::vector<int32_t> l;
+	populateVector_sequential(l, 0, state.range(0));
+
 	for (auto _ : state)
 	{
-		std::vector<int32_t> l;
-		populateVector_sequential(l, 0, state.range(0));
-
 		std::reverse(l.begin(), l.end());
 
 		auto start = std::chrono::high_resolution_clock::now();
@@ -233,11 +228,11 @@ static void BM_HeapSort_Random_Unique(benchmark::State& state)
 
 	uint32_t seed = STARTSEED;
 
+	std::vector<int32_t> l;
+	populateVector_sequential(l, 0, state.range(0));
 
 	for (auto _ : state)
 	{
-		std::vector<int32_t> l;
-		populateVector_sequential(l, 0, state.range(0));
 		shuffleVector_random(l, seed);
 
 		auto start = std::chrono::high_resolution_clock::now();
@@ -256,11 +251,11 @@ static void BM_MergeSort_Sorted_Unique(benchmark::State& state)
 {
     state.SetLabel((std::stringstream{} << state.range(0)).str());
 
+	std::vector<int32_t> l;
+	populateVector_sequential(l, 0, state.range(0));
+
 	for (auto _ : state)
 	{
-		std::vector<int32_t> l;
-		populateVector_sequential(l, 0, state.range(0));
-
 		auto start = std::chrono::high_resolution_clock::now();
 		wmv::algorithms::merge_sort(l);
 		auto end = std::chrono::high_resolution_clock::now();
@@ -275,11 +270,11 @@ static void BM_MergeSort_ReverseSorted_Unique(benchmark::State& state)
 {
     state.SetLabel((std::stringstream{} << state.range(0)).str());
 
+	std::vector<int32_t> l;
+	populateVector_sequential(l, 0, state.range(0));
+
 	for (auto _ : state)
 	{
-		std::vector<int32_t> l;
-		populateVector_sequential(l, 0, state.range(0));
-
 		std::reverse(l.begin(), l.end());
 
 		auto start = std::chrono::high_resolution_clock::now();
@@ -298,10 +293,11 @@ static void BM_MergeSort_Random_Unique(benchmark::State& state)
 
 	uint32_t seed = STARTSEED;
 
+	std::vector<int32_t> l;
+	populateVector_sequential(l, 0, state.range(0));
+
 	for (auto _ : state)
 	{
-		std::vector<int32_t> l;
-		populateVector_sequential(l, 0, state.range(0));
 		shuffleVector_random(l, seed);
 
 		auto start = std::chrono::high_resolution_clock::now();
