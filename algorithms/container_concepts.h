@@ -1,8 +1,21 @@
-//
-// Created by betachess on 28/09/23.
-//
+#pragma once
 
-#ifndef ALGORITHMS_CONTAINER_CONCEPTS_H
-#define ALGORITHMS_CONTAINER_CONCEPTS_H
+namespace wmv {
+	template<typename T, typename U>
+	concept is_empty_pushable = requires(T& t)
+			{
+				t.push_back({});
+			};
 
-#endif //ALGORITHMS_CONTAINER_CONCEPTS_H
+	template<typename T, typename U>
+	concept is_pushable = requires(T& t, const U& u)
+	{
+		t.push_back(u);
+	};
+
+	template<typename T>
+	concept is_popable = requires(T & t)
+	{
+		t.pop_back();
+	};
+}
