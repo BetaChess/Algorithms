@@ -6,21 +6,21 @@
 
 int main()
 {
-    LinkedList l;
+	LinkedList l;
 
-    l.reverse();
+	l.reverse();
 
-    for (size_t i = 0; i < 10; i++)
-        l.insert(i);
+	for (size_t i = 0; i < 10; i++)
+		l.insert(i);
 
-    for (LinkedList::Node* curr = l.getHead(); curr != nullptr; curr = curr->next)
-        std::cout << curr->data << " ";
-    std::cout << std::endl;
+	for (LinkedList::Node *curr = l.getHead(); curr != nullptr; curr = curr->next)
+		std::cout << curr->data << " ";
+	std::cout << std::endl;
 
-    l.reverse();
+	l.reverse();
 
-    for (LinkedList::Node* curr = l.getHead(); curr != nullptr; curr = curr->next)
-        std::cout << curr->data << " ";
+	for (LinkedList::Node *curr = l.getHead(); curr != nullptr; curr = curr->next)
+		std::cout << curr->data << " ";
 
-    return 0;
+	return 0;
 }

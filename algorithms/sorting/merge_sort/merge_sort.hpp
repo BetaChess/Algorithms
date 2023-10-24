@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cassert>
+#include <limits>
 #include <vector>
 
 
@@ -35,8 +36,7 @@ void merge(std::vector<int>::iterator p, std::vector<int>::iterator q, std::vect
 		if (L[i] <= R[j])
 		{
 			*k = L[i++];
-		}
-		else
+		} else
 		{
 			n1 - i;
 			*k = R[j++];
@@ -55,8 +55,11 @@ void merge_sort(std::vector<int>::iterator p, std::vector<int>::iterator r)
 	}
 }
 
-void merge_sort(std::vector<int>& v)
+void merge_sort(std::vector<int> &v)
 {
+	if (v.size() < 2) [[unlikely]]
+		return;
+
 	merge_sort(v.begin(), (v.end() - 1));
 }
 
@@ -118,4 +121,4 @@ void merge_sort(std::vector<int>& v)
 //}
 
 
-}
+}// namespace wmv::algorithms

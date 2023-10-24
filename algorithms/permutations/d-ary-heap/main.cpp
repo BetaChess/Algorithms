@@ -1,14 +1,13 @@
 #include "daryheap.h"
 
+#include <array>
 #include <iostream>
 #include <vector>
-#include <array>
-
 
 
 int main()
 {
-	std::vector<int> heap = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+	std::vector<int> heap = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 	wmv::algorithms::make_dheap<3>(heap);
 	wmv::algorithms::dheap_insert<5>(heap, 13);
 

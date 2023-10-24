@@ -1,16 +1,22 @@
+#pragma comment(linker, "/6000000")
+
 #include <benchmark/benchmark.h>
 
 #include <chrono>
-#include <sstream>
 #include <iostream>
+#include <sstream>
 
-#include "../../algorithms/sorting/insertion_sort/insertion_sort.h"
+#include "../../algorithms/util/random.hpp"
+
+
 #include "../../algorithms/sorting/heap_sort/heap_sort.h"
+#include "../../algorithms/sorting/insertion_sort/insertion_sort.h"
 #include "../../algorithms/sorting/merge_sort/merge_sort.hpp"
+#include "../../algorithms/sorting/quick_sort/quick_sort.hpp"
 
 // Naming standard:
 // BM_<algorithm>_<input_distribution>_<element_type>
-// 
+//
 // Note: element_type could for example be "unique", meaning each elemt in the range is unique.
 //       It could also be "repeated", meaning there are duplicates in the range, or "random", meaning the range is randomly generated (with a seed).
 
@@ -19,298 +25,137 @@
 #define STARTSEED 6942069
 
 
-uint32_t pcg_hash(uint32_t x)
-{
-	x = x * 747796405u + 2891336453u;
-	uint32_t word = ((x >> ((x >> 28u) + 4u)) ^ x) * 277803737u;
-	return (word >> 22) ^ word;
-}
-
-float pcg_random(uint32_t& seed)
+float pcg_random(uint32_t &seed)
 {
 	seed = pcg_hash(seed);
 	return float(seed) / float(std::numeric_limits<uint32_t>::max());
 }
 
-uint32_t pcg_random(uint32_t& seed, uint32_t min, uint32_t max)
+uint32_t pcg_random(uint32_t &seed, uint32_t min, uint32_t max)
 {
 	return min + uint32_t(pcg_random(seed) * float(max - min));
 }
 
-void populateVector_sequential(std::vector<int32_t>& v, int32_t min, int32_t max)
+void populateVector_sequential(std::vector<int32_t> &v, int32_t min, int32_t max)
 {
 	v.resize(max - min + 1);
 	for (int32_t i = min; i <= max; i++)
 		v[i - min] = i;
 }
 
-void shuffleVector_random(std::vector<int32_t>& v, uint32_t& seed)
+void shuffleVector_random(std::vector<int32_t> &v, uint32_t &seed)
 {
 	for (size_t i = 0; i < v.size(); i++)
 		std::swap(v[i], v[pcg_random(seed, 0, v.size() - 1)]);
 }
 
-// Generates a list of sequential numbers (positive and negative) in a random order
-// The randomness is seeded, so shuffling an instance will yield the same result as on a seperate instance.
-// The list is initially sorted!
+/// SORTING BENCHMARK MACROS
+
+#define STANDARDPARAMS RangeMultiplier(2)->Range(0, 1 << 17)->DenseRange(1 << 18, 1 << 22, 500000)->DenseRange(1 << 22, 1 << 26, 1000000)->UseManualTime()
+#define SLOWPARAMS RangeMultiplier(2)->Range(0, 1 << 15)->UseManualTime()
+
+#define SORTED_UNIQUE(NAME, SORTINGFUNCTION, BENCHMARKPARAMS)                                              \
+	static void NAME(benchmark::State &state)                                                              \
+	{                                                                                                      \
+		state.SetLabel((std::stringstream{} << state.range(0)).str());                                     \
+		std::vector<int32_t> l;                                                                            \
+		populateVector_sequential(l, 0, state.range(0));                                                   \
+		for (auto _: state)                                                                                \
+		{                                                                                                  \
+			auto start = std::chrono::high_resolution_clock::now();                                        \
+			SORTINGFUNCTION(l);                                                                            \
+			auto end = std::chrono::high_resolution_clock::now();                                          \
+			auto elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - start); \
+			state.SetIterationTime(elapsed_seconds.count());                                               \
+		}                                                                                                  \
+	}                                                                                                      \
+	BENCHMARK(NAME)->BENCHMARKPARAMS;
+
+#define REVERSESORTED_UNIQUE(NAME, SORTINGFUNCTION, BENCHMARKPARAMS)                                       \
+	static void NAME(benchmark::State &state)                                                              \
+	{                                                                                                      \
+		state.SetLabel((std::stringstream{} << state.range(0)).str());                                     \
+		std::vector<int32_t> l;                                                                            \
+		populateVector_sequential(l, 0, state.range(0));                                                   \
+		for (auto _: state)                                                                                \
+		{                                                                                                  \
+			std::reverse(l.begin(), l.end());                                                              \
+			auto start = std::chrono::high_resolution_clock::now();                                        \
+			SORTINGFUNCTION(l);                                                                            \
+			auto end = std::chrono::high_resolution_clock::now();                                          \
+			auto elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - start); \
+			state.SetIterationTime(elapsed_seconds.count());                                               \
+		}                                                                                                  \
+	}                                                                                                      \
+	BENCHMARK(NAME)->BENCHMARKPARAMS;
+
+#define RANDOM_UNIQUE(NAME, SORTINGFUNCTION, BENCHMARKPARAMS)                                              \
+	static void NAME(benchmark::State &state)                                                              \
+	{                                                                                                      \
+		state.SetLabel((std::stringstream{} << state.range(0)).str());                                     \
+		uint32_t seed = STARTSEED;                                                                         \
+		std::vector<int32_t> l;                                                                            \
+		l.resize(state.range(0));                                                                          \
+		for (auto _: state)                                                                                \
+		{                                                                                                  \
+			for (size_t i = 0; i < l.size(); i++)                                                          \
+				l[i] = pcg_random(seed, 0, l.size() - 1);                                                  \
+			auto start = std::chrono::high_resolution_clock::now();                                        \
+			SORTINGFUNCTION(l);                                                                            \
+			auto end = std::chrono::high_resolution_clock::now();                                          \
+			auto elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - start); \
+			state.SetIterationTime(elapsed_seconds.count());                                               \
+		}                                                                                                  \
+	}                                                                                                      \
+	BENCHMARK(NAME)->BENCHMARKPARAMS;
+
 
 // STD::SORT BENCHMARKS
-static void BM_StdSort_Sorted_Unique(benchmark::State& state)
-{
-    state.SetLabel((std::stringstream{} << state.range(0)).str());
-	std::vector<int32_t> l;
-	populateVector_sequential(l, 0, state.range(0));
+//SORTED_UNIQUE(BM_StdSort_Sorted_Unique, std::ranges::sort, STANDARDPARAMS);
+//
+//REVERSESORTED_UNIQUE(BM_StdSort_ReverseSorted_Unique, std::ranges::sort, STANDARDPARAMS);
+//
+//RANDOM_UNIQUE(BM_StdSort_Random_Unique, std::ranges::sort, STANDARDPARAMS);
+//
+//
+//// INSERTION SORT BENCHMARKS
+//SORTED_UNIQUE(BM_InsertionSort_Sorted_Unique, wmv::algorithms::insertion_sort, STANDARDPARAMS);
+//
+//REVERSESORTED_UNIQUE(BM_InsertionSort_ReverseSorted_Unique, wmv::algorithms::insertion_sort, SLOWPARAMS);
+//
+//RANDOM_UNIQUE(BM_InsertionSort_Random_Unique, wmv::algorithms::insertion_sort, SLOWPARAMS);
+//
+//
+//// HEAP SORT BENCHMARKS
+//SORTED_UNIQUE(BM_HeapSort_Sorted_Unique, wmv::algorithms::heap_sort, STANDARDPARAMS);
+//
+//REVERSESORTED_UNIQUE(BM_HeapSort_ReverseSorted_Unique, wmv::algorithms::heap_sort, STANDARDPARAMS);
+//
+//RANDOM_UNIQUE(BM_HeapSort_Random_Unique, wmv::algorithms::heap_sort, STANDARDPARAMS);
+//
+//
+//// MERGE SORT BENCHMARKS
+//SORTED_UNIQUE(BM_MergeSort_Sorted_Unique, wmv::algorithms::merge_sort, STANDARDPARAMS);
+//
+//REVERSESORTED_UNIQUE(BM_MergeSort_ReverseSorted_Unique, wmv::algorithms::merge_sort, STANDARDPARAMS);
+//
+//RANDOM_UNIQUE(BM_MergeSort_Random_Unique, wmv::algorithms::merge_sort, STANDARDPARAMS);
+//
+//
+//// QUICK SORT BENCHMARKS
+//SORTED_UNIQUE(BM_QuickSort_Sorted_Unique, wmv::algorithms::quick_sort, SLOWPARAMS);
+//
+//REVERSESORTED_UNIQUE(BM_QuickSort_ReverseSorted_Unique, wmv::algorithms::quick_sort, SLOWPARAMS);
+//
+//RANDOM_UNIQUE(BM_QuickSort_Random_Unique, wmv::algorithms::quick_sort, STANDARDPARAMS);
 
+// RANDOMIZED QUICK SORT
+SORTED_UNIQUE(BM_RandomizedQuickSort_Sorted_Unique, wmv::algorithms::randomized_quick_sort, STANDARDPARAMS);
 
-	for (auto _ : state)
-	{
-		auto start = std::chrono::high_resolution_clock::now();
-		std::sort(l.begin(), l.end());
-		auto end = std::chrono::high_resolution_clock::now();
-		auto elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
+REVERSESORTED_UNIQUE(BM_RandomizedQuickSort_ReverseSorted_Unique, wmv::algorithms::randomized_quick_sort,
+					 STANDARDPARAMS);
 
-		state.SetIterationTime(elapsed_seconds.count());
-	} 
-}
-BENCHMARK(BM_StdSort_Sorted_Unique)->RangeMultiplier(2)->Range(0, 1 << 17)->DenseRange(1 << 18, 1 << 22, 500000)->DenseRange(1 << 22, 1 << 26, 1000000)->UseManualTime();
-
-static void BM_StdSort_ReverseSorted_Unique(benchmark::State& state)
-{
-    state.SetLabel((std::stringstream{} << state.range(0)).str());
-	std::vector<int32_t> l;
-	populateVector_sequential(l, 0, state.range(0));
-
-	for (auto _ : state)
-	{
-		std::reverse(l.begin(), l.end());
-
-		auto start = std::chrono::high_resolution_clock::now();
-		std::sort(l.begin(), l.end());
-		auto end = std::chrono::high_resolution_clock::now();
-		auto elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
-
-		state.SetIterationTime(elapsed_seconds.count());
-	}
-}
-BENCHMARK(BM_StdSort_ReverseSorted_Unique)->RangeMultiplier(2)->Range(0, 1 << 17)->DenseRange(1 << 18, 1 << 22, 500000)->DenseRange(1 << 22, 1 << 26, 1000000)->UseManualTime();
-
-static void BM_StdSort_Random_Unique(benchmark::State& state)
-{
-    state.SetLabel((std::stringstream{} << state.range(0)).str());
-
-	uint32_t seed = STARTSEED;
-	std::vector<int32_t> l;
-	populateVector_sequential(l, 0, state.range(0));
-
-	for (auto _ : state)
-	{
-		shuffleVector_random(l, seed);
-
-		auto start = std::chrono::high_resolution_clock::now();
-		std::sort(l.begin(), l.end());
-		auto end = std::chrono::high_resolution_clock::now();
-		auto elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
-
-		state.SetIterationTime(elapsed_seconds.count());
-	}
-}
-BENCHMARK(BM_StdSort_Random_Unique)->RangeMultiplier(2)->Range(0, 1 << 17)->DenseRange(1 << 18, 1 << 22, 500000)->DenseRange(1 << 22, 1 << 26, 1000000)->UseManualTime();
-
-
-
-// INSERTION SORT BENCHMARKS
-static void BM_InsertionSort_Sorted_Unique(benchmark::State& state)
-{
-    state.SetLabel((std::stringstream{} << state.range(0)).str());
-	std::vector<int32_t> l;
-	populateVector_sequential(l, 0, state.range(0));
-
-	for (auto _ : state)
-	{
-		auto start = std::chrono::high_resolution_clock::now();
-		wmv::algorithms::insertion_sort(l);
-		auto end = std::chrono::high_resolution_clock::now();
-		auto elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
-
-		state.SetIterationTime(elapsed_seconds.count());
-	}
-}
-BENCHMARK(BM_InsertionSort_Sorted_Unique)->RangeMultiplier(2)->Range(0, 1 << 17)->DenseRange(1 << 18, 1 << 22, 500000)->DenseRange(1 << 22, 1 << 26, 1000000)->UseManualTime();
-
-static void BM_InsertionSort_ReverseSorted_Unique(benchmark::State& state)
-{
-    state.SetLabel((std::stringstream{} << state.range(0)).str());
-	std::vector<int32_t> l;
-	populateVector_sequential(l, 0, state.range(0));
-
-	for (auto _ : state)
-	{
-		std::reverse(l.begin(), l.end());
-
-		auto start = std::chrono::high_resolution_clock::now();
-		wmv::algorithms::insertion_sort(l);
-		auto end = std::chrono::high_resolution_clock::now();
-		auto elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
-
-		state.SetIterationTime(elapsed_seconds.count());
-	}
-}
-BENCHMARK(BM_InsertionSort_ReverseSorted_Unique)->RangeMultiplier(2)->Range(0, 1 << 14)->UseManualTime();
-
-static void BM_InsertionSort_Random_Unique(benchmark::State& state)
-{
-    state.SetLabel((std::stringstream{} << state.range(0)).str());
-
-	uint32_t seed = STARTSEED;
-
-	std::vector<int32_t> l;
-	populateVector_sequential(l, 0, state.range(0));
-
-	for (auto _ : state)
-	{
-		shuffleVector_random(l, seed);
-
-		auto start = std::chrono::high_resolution_clock::now();
-		wmv::algorithms::insertion_sort(l);
-		auto end = std::chrono::high_resolution_clock::now();
-		auto elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
-
-		state.SetIterationTime(elapsed_seconds.count());
-	}
-}
-BENCHMARK(BM_InsertionSort_Random_Unique)->RangeMultiplier(2)->Range(0, 1 << 14)->UseManualTime();;
-
-
-// HEAP SORT BENCHMARKS
-static void BM_HeapSort_Sorted_Unique(benchmark::State& state)
-{
-    state.SetLabel((std::stringstream{} << state.range(0)).str());
-
-	std::vector<int32_t> l;
-	populateVector_sequential(l, 0, state.range(0));
-
-	for (auto _ : state)
-	{
-		auto start = std::chrono::high_resolution_clock::now();
-		wmv::algorithms::heap_sort(l);
-		auto end = std::chrono::high_resolution_clock::now();
-		auto elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
-
-		state.SetIterationTime(elapsed_seconds.count());
-	}
-}
-BENCHMARK(BM_HeapSort_Sorted_Unique)->RangeMultiplier(2)->Range(0, 1 << 17)->DenseRange(1 << 18, 1 << 22, 500000)->DenseRange(1 << 22, 1 << 26, 1000000)->UseManualTime();
-
-static void BM_HeapSort_ReverseSorted_Unique(benchmark::State& state)
-{
-    state.SetLabel((std::stringstream{} << state.range(0)).str());
-
-	std::vector<int32_t> l;
-	populateVector_sequential(l, 0, state.range(0));
-
-	for (auto _ : state)
-	{
-		std::reverse(l.begin(), l.end());
-
-		auto start = std::chrono::high_resolution_clock::now();
-		wmv::algorithms::heap_sort(l);
-		auto end = std::chrono::high_resolution_clock::now();
-		auto elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
-
-		state.SetIterationTime(elapsed_seconds.count());
-	}
-}
-BENCHMARK(BM_HeapSort_ReverseSorted_Unique)->RangeMultiplier(2)->Range(0, 1 << 17)->DenseRange(1 << 18, 1 << 22, 500000)->DenseRange(1 << 22, 1 << 26, 1000000)->UseManualTime();
-
-static void BM_HeapSort_Random_Unique(benchmark::State& state)
-{
-    state.SetLabel((std::stringstream{} << state.range(0)).str());
-
-	uint32_t seed = STARTSEED;
-
-	std::vector<int32_t> l;
-	populateVector_sequential(l, 0, state.range(0));
-
-	for (auto _ : state)
-	{
-		shuffleVector_random(l, seed);
-
-		auto start = std::chrono::high_resolution_clock::now();
-		wmv::algorithms::heap_sort(l);
-		auto end = std::chrono::high_resolution_clock::now();
-		auto elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
-
-		state.SetIterationTime(elapsed_seconds.count());
-	}
-}
-BENCHMARK(BM_HeapSort_Random_Unique)->RangeMultiplier(2)->Range(0, 1 << 17)->DenseRange(1 << 18, 1 << 22, 500000)->DenseRange(1 << 22, 1 << 26, 1000000)->UseManualTime();
-
-
-// MERGE SORT BENCHMARKS
-static void BM_MergeSort_Sorted_Unique(benchmark::State& state)
-{
-    state.SetLabel((std::stringstream{} << state.range(0)).str());
-
-	std::vector<int32_t> l;
-	populateVector_sequential(l, 0, state.range(0));
-
-	for (auto _ : state)
-	{
-		auto start = std::chrono::high_resolution_clock::now();
-		wmv::algorithms::merge_sort(l);
-		auto end = std::chrono::high_resolution_clock::now();
-		auto elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
-
-		state.SetIterationTime(elapsed_seconds.count());
-	}
-}
-BENCHMARK(BM_MergeSort_Sorted_Unique)->RangeMultiplier(2)->Range(0, 1 << 17)->DenseRange(1 << 18, 1 << 22, 500000)->DenseRange(1 << 22, 1 << 26, 1000000)->UseManualTime();
-
-static void BM_MergeSort_ReverseSorted_Unique(benchmark::State& state)
-{
-    state.SetLabel((std::stringstream{} << state.range(0)).str());
-
-	std::vector<int32_t> l;
-	populateVector_sequential(l, 0, state.range(0));
-
-	for (auto _ : state)
-	{
-		std::reverse(l.begin(), l.end());
-
-		auto start = std::chrono::high_resolution_clock::now();
-		wmv::algorithms::merge_sort(l);
-		auto end = std::chrono::high_resolution_clock::now();
-		auto elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
-
-		state.SetIterationTime(elapsed_seconds.count());
-	}
-}
-BENCHMARK(BM_MergeSort_ReverseSorted_Unique)->RangeMultiplier(2)->Range(0, 1 << 17)->DenseRange(1 << 18, 1 << 22, 500000)->DenseRange(1 << 22, 1 << 26, 1000000)->UseManualTime();
-
-static void BM_MergeSort_Random_Unique(benchmark::State& state)
-{
-    state.SetLabel((std::stringstream{} << state.range(0)).str());
-
-	uint32_t seed = STARTSEED;
-
-	std::vector<int32_t> l;
-	populateVector_sequential(l, 0, state.range(0));
-
-	for (auto _ : state)
-	{
-		shuffleVector_random(l, seed);
-
-		auto start = std::chrono::high_resolution_clock::now();
-		wmv::algorithms::merge_sort(l);
-		auto end = std::chrono::high_resolution_clock::now();
-		auto elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
-
-		state.SetIterationTime(elapsed_seconds.count());
-	}
-}
-BENCHMARK(BM_MergeSort_Random_Unique)->RangeMultiplier(2)->Range(0, 1 << 17)->DenseRange(1 << 18, 1 << 22, 500000)->DenseRange(1 << 22, 1 << 26, 1000000)->UseManualTime();
-
-
+RANDOM_UNIQUE(BM_RandomizedQuickSort_Random_Unique, wmv::algorithms::randomized_quick_sort, STANDARDPARAMS);
 
 
 BENCHMARK_MAIN();

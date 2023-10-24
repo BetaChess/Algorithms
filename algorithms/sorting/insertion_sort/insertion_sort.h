@@ -2,10 +2,9 @@
 
 #include <ranges>
 
-namespace wmv
-{
 
-namespace algorithms
+
+namespace wmv::algorithms
 {
 
 // Sorts the elements using insertion sort
@@ -15,7 +14,7 @@ void insertion_sort(I first, S last)
 {
 	auto size = std::ranges::distance(first, last);
 
-	for (size_t i = 1; i < size; ++i)
+	for (int64_t i = 1; i < size; ++i)
 	{
 		auto key = first[i];
 		int j = i - 1;
@@ -30,11 +29,14 @@ void insertion_sort(I first, S last)
 
 template<std::ranges::random_access_range R, class Comp = std::ranges::less>
 	requires std::sortable<std::ranges::iterator_t<R>, Comp>
-void insertion_sort(R& r)
+void insertion_sort(R &r)
 {
+	if (std::ranges::size(r) < 2) [[unlikely]]
+		return;
+
 	insertion_sort(std::ranges::begin(r), std::ranges::end(r));
 }
 
-}
+} // namespace wmv::algorithms
 
-}
+

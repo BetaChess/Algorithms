@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.8)
 
-project("linked_lists")
+project("quick_sort")
 
-add_executable(${PROJECT_NAME} "main.cpp" "linked_lists.hpp")
+add_executable(${PROJECT_NAME} "main.cpp" "quick_sort.hpp")
 
 set_target_properties(${PROJECT_NAME}
         PROPERTIES

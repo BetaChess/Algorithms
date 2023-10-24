@@ -1,15 +1,18 @@
 #include "heap.h"
 
+#include <algorithm>
 #include <iostream>
 #include <vector>
 
 int main()
 {
-	std::vector<int> heap = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-	wmv::algorithms::make_heap(heap);
-	wmv::algorithms::heap_insert(heap, 13);
-	std::cout << wmv::algorithms::is_heap(heap) << std::endl;
-	std::cout << wmv::algorithms::pop_heap(heap) << std::endl;
+	std::vector<int> heap = {0, 2, 6, 9, 3, 4, 1, 8, 5, 7};
+	wmv::algorithms::make_heap(heap, std::ranges::less{});
+	std::cout << wmv::algorithms::is_heap(heap, std::ranges::less{}) << std::endl;
+	std::cout << std::ranges::is_heap(heap, std::ranges::less{}) << std::endl;
+
+	for (int i: heap)
+		std::cout << i << " ";
 
 	return 0;
 }
