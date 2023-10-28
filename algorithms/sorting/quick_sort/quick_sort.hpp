@@ -8,14 +8,16 @@
 namespace wmv::algorithms
 {
 
-std::vector<int>::iterator partition(std::vector<int>::iterator first, std::vector<int>::iterator last)
+template<std::random_access_iterator I, std::sentinel_for<I> S, class Comp = std::ranges::less>
+	requires std::sortable<I, Comp>
+I partition(I first, S last, Comp comp = Comp{})
 {
 	auto pivot = *last;
 	int64_t offset = -1;
 
 	for (auto j = first; j < last; j++)
 	{
-		if (*j <= pivot)
+		if (!comp(pivot, *j))
 		{
 			offset++;
 			std::swap(*(first + offset), *j);
@@ -27,48 +29,57 @@ std::vector<int>::iterator partition(std::vector<int>::iterator first, std::vect
 	return first + 1 + offset;
 }
 
-void quick_sort(std::vector<int>::iterator first, std::vector<int>::iterator last)
+template<std::random_access_iterator I, std::sentinel_for<I> S, class Comp = std::ranges::less>
+	requires std::sortable<I, Comp>
+void quick_sort(I first, S last, Comp comp = Comp{})
 {
 	if (first < last)
 	{
-		auto pivot_index = partition(first, last);
-		quick_sort(first, pivot_index - 1);
-		quick_sort(pivot_index + 1, last);
+		auto pivot_index = wmv::algorithms::partition(first, last, comp);
+		quick_sort(first, pivot_index - 1, comp);
+		quick_sort(pivot_index + 1, last, comp);
 	}
 }
 
-void quick_sort(std::vector<int> &v)
+template<std::ranges::random_access_range R, class Comp = std::ranges::less>
+	requires std::sortable<std::ranges::iterator_t<R>, Comp>
+void quick_sort(R &r, Comp comp = Comp{})
 {
-	if (v.size() < 2) [[unlikely]]
+	if (std::ranges::size(r) < 2)
 		return;
 
-	quick_sort(v.begin(), v.end() - 1);
+	quick_sort(std::ranges::begin(r), std::ranges::end(r) - 1, comp);
 }
 
-std::vector<int>::iterator
-randomized_partition(std::vector<int>::iterator first, std::vector<int>::iterator last, uint32_t &seed)
+template<std::random_access_iterator I, std::sentinel_for<I> S, class Comp = std::ranges::less>
+	requires std::sortable<I, Comp>
+I randomized_partition(I first, S last, uint32_t &seed, Comp comp = Comp{})
 {
 	auto i = first + pcg_hash(seed) % std::distance(first, last);
 	std::swap(*i, *last);
-	return partition(first, last);
+	return wmv::algorithms::partition(first, last, comp);
 }
 
-void randomized_quick_sort(std::vector<int>::iterator first, std::vector<int>::iterator last, uint32_t seed = 0x52616e64)
+template<std::random_access_iterator I, std::sentinel_for<I> S, class Comp = std::ranges::less>
+	requires std::sortable<I, Comp>
+void randomized_quick_sort(I first, S last, uint32_t seed = 0x52616e64, Comp comp = Comp{})
 {
 	if (first < last)
 	{
-		auto pivot_index = randomized_partition(first, last, seed);
-		randomized_quick_sort(first, pivot_index - 1, seed);
-		randomized_quick_sort(pivot_index + 1, last, seed);
+		auto pivot_index = wmv::algorithms::randomized_partition(first, last, seed, comp);
+		randomized_quick_sort(first, pivot_index - 1, seed, comp);
+		randomized_quick_sort(pivot_index + 1, last, seed, comp);
 	}
 }
 
-void randomized_quick_sort(std::vector<int> &v, uint32_t seed = 0x52616e64)
+template<std::ranges::random_access_range R, class Comp = std::ranges::less>
+	requires std::sortable<std::ranges::iterator_t<R>, Comp>
+void randomized_quick_sort(R &r, uint32_t seed = 0x52616e64, Comp comp = Comp{})
 {
-	if (v.size() < 2) [[unlikely]]
+	if (std::ranges::size(r) < 2)
 		return;
 
-	randomized_quick_sort(v.begin(), v.end() - 1, seed);
+	randomized_quick_sort(std::ranges::begin(r), std::ranges::end(r) - 1, seed, comp);
 }
 
 }// namespace wmv::algorithms

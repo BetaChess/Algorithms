@@ -48,6 +48,11 @@ TEST(Sorting, Insertion)
 	EXPECT_FALSE(std::ranges::is_sorted(l));
 	wmv::algorithms::insertion_sort(l);
 	EXPECT_TRUE(std::ranges::is_sorted(l));
+
+	shuffleVector_random(l, seed);
+	EXPECT_FALSE(std::ranges::is_sorted(l, std::ranges::greater{}));
+	wmv::algorithms::insertion_sort(l, std::ranges::greater{});
+	EXPECT_TRUE(std::ranges::is_sorted(l, std::ranges::greater{}));
 }
 
 TEST(Sorting, Heap)
@@ -60,6 +65,11 @@ TEST(Sorting, Heap)
 	EXPECT_FALSE(std::ranges::is_sorted(l));
 	wmv::algorithms::heap_sort(l);
 	EXPECT_TRUE(std::ranges::is_sorted(l));
+
+	shuffleVector_random(l, seed);
+	EXPECT_FALSE(std::ranges::is_sorted(l, std::ranges::greater{}));
+	wmv::algorithms::heap_sort(l, std::ranges::greater{});
+	EXPECT_TRUE(std::ranges::is_sorted(l, std::ranges::greater{}));
 }
 
 TEST(Sorting, Merge)
@@ -72,6 +82,12 @@ TEST(Sorting, Merge)
 	EXPECT_FALSE(std::ranges::is_sorted(l));
 	wmv::algorithms::merge_sort(l);
 	EXPECT_TRUE(std::ranges::is_sorted(l));
+
+	// TODO: IMPLEMENT MERGE SORT PROPERLY
+//	shuffleVector_random(l, seed);
+//	EXPECT_FALSE(std::ranges::is_sorted(l, std::ranges::greater{}));
+//	wmv::algorithms::merge_sort(l, std::ranges::greater{});
+//	EXPECT_TRUE(std::ranges::is_sorted(l, std::ranges::greater{}));
 }
 
 TEST(Sorting, Quick)
@@ -84,6 +100,11 @@ TEST(Sorting, Quick)
 	EXPECT_FALSE(std::ranges::is_sorted(l));
 	wmv::algorithms::quick_sort(l);
 	EXPECT_TRUE(std::ranges::is_sorted(l));
+
+	shuffleVector_random(l, seed);
+	EXPECT_FALSE(std::ranges::is_sorted(l, std::ranges::greater{}));
+	wmv::algorithms::quick_sort(l, std::ranges::greater{});
+	EXPECT_TRUE(std::ranges::is_sorted(l, std::ranges::greater{}));
 }
 
 TEST(Sorting, RandomizedQuick)
@@ -96,6 +117,11 @@ TEST(Sorting, RandomizedQuick)
 	EXPECT_FALSE(std::ranges::is_sorted(l));
 	wmv::algorithms::randomized_quick_sort(l);
 	EXPECT_TRUE(std::ranges::is_sorted(l));
+
+	shuffleVector_random(l, seed);
+	EXPECT_FALSE(std::ranges::is_sorted(l, std::ranges::greater{}));
+	wmv::algorithms::randomized_quick_sort(l, 0x52616e64, std::ranges::greater{});
+	EXPECT_TRUE(std::ranges::is_sorted(l, std::ranges::greater{}));
 }
 
 TEST(Sorting, ALLEQUAL)
