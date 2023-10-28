@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.8)
 
 project(insertion_sort)
 
-add_executable(${PROJECT_NAME} "main.cpp" "insertion_sort.h")
+add_executable(${PROJECT_NAME} "main.cpp" "insertion_sort.hpp")
 
 set_target_properties(${PROJECT_NAME}
         PROPERTIES

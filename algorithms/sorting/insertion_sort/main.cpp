@@ -1,4 +1,4 @@
-#include "insertion_sort.h"
+#include "insertion_sort.hpp"
 
 #include <array>
 #include <iostream>

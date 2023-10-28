@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../permutations/heap/heap.h"
+#include "../../permutations/heap/heap.hpp"
 
 #include <algorithm>
 

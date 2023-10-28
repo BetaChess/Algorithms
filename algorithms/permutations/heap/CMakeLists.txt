@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.8)
 
 project("heap")
 
-add_executable(${PROJECT_NAME} "main.cpp" "heap.h")
+add_executable(${PROJECT_NAME} "main.cpp" "heap.hpp")
 
 set_target_properties(${PROJECT_NAME}
         PROPERTIES

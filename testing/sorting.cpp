@@ -3,8 +3,8 @@
 #include <algorithm>
 #include <ranges>
 
-#include "../algorithms/sorting/heap_sort/heap_sort.h"
-#include "../algorithms/sorting/insertion_sort/insertion_sort.h"
+#include "../algorithms/sorting/heap_sort/heap_sort.hpp"
+#include "../algorithms/sorting/insertion_sort/insertion_sort.hpp"
 #include "../algorithms/sorting/merge_sort/merge_sort.hpp"
 #include "../algorithms/sorting/quick_sort/quick_sort.hpp"
 #include "../algorithms/util/random.hpp"

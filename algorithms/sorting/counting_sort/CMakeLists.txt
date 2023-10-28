@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.8)
 
-project("heap_sort")
+project("counting_sort")
 
-add_executable(${PROJECT_NAME} "main.cpp" "heap_sort.hpp")
+add_executable(${PROJECT_NAME} "main.cpp" "counting_sort.hpp")
 
 set_target_properties(${PROJECT_NAME}
         PROPERTIES
