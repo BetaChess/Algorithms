@@ -7,7 +7,8 @@
 #include "../algorithms/sorting/insertion_sort/insertion_sort.hpp"
 #include "../algorithms/sorting/merge_sort/merge_sort.hpp"
 #include "../algorithms/sorting/quick_sort/quick_sort.hpp"
-#include "../algorithms/util/random.hpp"
+#include "../algorithms/sorting/counting_sort/counting_sort.hpp"
+#include "../algorithms/sorting/radix_sort/radix_sort.hpp"
 
 
 float pcg_random(uint32_t &seed)
@@ -34,8 +35,8 @@ void shuffleVector_random(std::vector<int32_t> &v, uint32_t &seed)
 		std::swap(v[i], v[pcg_random(seed, 0U, static_cast<uint32_t>(v.size() - 1ULL))]);
 }
 
-#define MIN -5
-#define MAX 10000
+#define MIN 0
+#define MAX 1000
 
 
 TEST(Sorting, Insertion)
@@ -124,9 +125,35 @@ TEST(Sorting, RandomizedQuick)
 	EXPECT_TRUE(std::ranges::is_sorted(l, std::ranges::greater{}));
 }
 
+TEST(Sorting, Counting)
+{
+	std::vector<int32_t> l;
+	std::vector<int32_t> l_out;
+	populateVector_sequential(l, MIN, MAX);
+	l_out.resize(l.size());
+	uint32_t seed = 54325342;
+	shuffleVector_random(l, seed);
+
+	EXPECT_FALSE(std::ranges::is_sorted(l));
+	wmv::algorithms::counting_sort(l, l_out, static_cast<uint32_t>(MAX));
+	EXPECT_TRUE(std::ranges::is_sorted(l_out));
+}
+
+TEST(Sorting, Radix)
+{
+	std::vector<int32_t> l;
+	populateVector_sequential(l, MIN, MAX);
+	uint32_t seed = 54325342;
+	shuffleVector_random(l, seed);
+
+	EXPECT_FALSE(std::ranges::is_sorted(l));
+	wmv::algorithms::radix_sort(l);
+	EXPECT_TRUE(std::ranges::is_sorted(l));
+}
+
 TEST(Sorting, ALLEQUAL)
 {
-#define NUMSORTFUNCTIONS 5
+#define NUMSORTFUNCTIONS 7
 	std::vector<int32_t> l[NUMSORTFUNCTIONS];
 	for (int i = 0; i < NUMSORTFUNCTIONS; i++)
 	{
@@ -135,11 +162,16 @@ TEST(Sorting, ALLEQUAL)
 		shuffleVector_random(l[i], seed);
 	}
 
+	std::vector<int32_t> l_util;
+	l_util.resize(l[0].size());
+
 	wmv::algorithms::insertion_sort(l[0]);
 	wmv::algorithms::heap_sort(l[1]);
 	wmv::algorithms::merge_sort(l[2]);
 	wmv::algorithms::quick_sort(l[3]);
 	wmv::algorithms::randomized_quick_sort(l[4]);
+	l[5] = std::move(wmv::algorithms::counting_sort(l[5], l_util, static_cast<uint32_t>(MAX)));
+	wmv::algorithms::radix_sort(l[6]);
 
 	for (size_t i = 0; i < l[0].size(); i++)
 	{
@@ -147,5 +179,7 @@ TEST(Sorting, ALLEQUAL)
 		EXPECT_EQ(l[0][i], l[2][i]);
 		EXPECT_EQ(l[0][i], l[3][i]);
 		EXPECT_EQ(l[0][i], l[4][i]);
+		EXPECT_EQ(l[0][i], l[5][i]);
+		EXPECT_EQ(l[0][i], l[6][i]);
 	}
 }
