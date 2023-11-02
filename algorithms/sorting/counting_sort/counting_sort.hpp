@@ -4,6 +4,10 @@
 #include <cstdint>
 #include <cstring>
 
+#ifndef RADIX_BASE
+#define RADIX_BASE 10
+#endif
+
 
 namespace wmv::algorithms
 {
@@ -40,19 +44,19 @@ R& _r_counting_sort(std::ranges::random_access_range auto &r, R &out_range, std:
 //	const size_t size = static_cast<size_t>(k) + static_cast<size_t>(1u);
 //	auto *C = new decltype(k)[size];
 //	auto mask = 0xff << digit;
-	decltype(place) C[10];
+	decltype(place) C[RADIX_BASE];
 
 	std::memset(C, 0, sizeof(C));
 
 	for (size_t i = 0; i < std::ranges::size(r); i++)
-		C[(r[i] / place) % 10]++;
+		C[(r[i] / place) % RADIX_BASE]++;
 
-	for (size_t i = 1; i < 10; i++)
+	for (size_t i = 1; i < RADIX_BASE; i++)
 		C[i] += C[i - 1];
 
 	for (size_t i = std::ranges::size(r) - 1; i != static_cast<size_t>(-1); i--)
 	{
-		size_t j = (r[i] / place) % 10;
+		size_t j = (r[i] / place) % RADIX_BASE;
 		C[j]--;
 		out_range[C[j]] = r[i];
 	}

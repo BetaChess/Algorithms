@@ -15,11 +15,11 @@ void radix_sort(R &r)
 
 	range_elem_type max = std::ranges::max(r);
 
-	for (range_elem_type place = 1; 0 < max / place; place *= 10)
+	for (range_elem_type place = 1; 0 < max / place; place *= RADIX_BASE)
 	{
 		_r_counting_sort(r, s, place);
 		if (0 < max / place)
-			_r_counting_sort(s, r, place *= 10);
+			_r_counting_sort(s, r, place *= RADIX_BASE);
 		else
 		{
 			for (size_t j = 0; j < std::ranges::size(r); j++)
