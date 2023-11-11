@@ -1,4 +1,4 @@
-#pragma comment(linker, "/6000000")
+//#pragma comment(linker, "/6000000")
 
 #include <benchmark/benchmark.h>
 
@@ -13,6 +13,8 @@
 #include "../../algorithms/sorting/insertion_sort/insertion_sort.hpp"
 #include "../../algorithms/sorting/merge_sort/merge_sort.hpp"
 #include "../../algorithms/sorting/quick_sort/quick_sort.hpp"
+#include "../../algorithms/sorting/radix_sort/radix_sort.hpp"
+#include "../../algorithms/sorting/counting_sort/counting_sort.hpp"
 
 // Naming standard:
 // BM_<algorithm>_<input_distribution>_<element_type>
@@ -111,43 +113,43 @@ void shuffleVector_random(std::vector<int32_t> &v, uint32_t &seed)
 
 
 // STD::SORT BENCHMARKS
-//SORTED_UNIQUE(BM_StdSort_Sorted_Unique, std::ranges::sort, STANDARDPARAMS);
-//
-//REVERSESORTED_UNIQUE(BM_StdSort_ReverseSorted_Unique, std::ranges::sort, STANDARDPARAMS);
-//
-//RANDOM_UNIQUE(BM_StdSort_Random_Unique, std::ranges::sort, STANDARDPARAMS);
-//
-//
-//// INSERTION SORT BENCHMARKS
-//SORTED_UNIQUE(BM_InsertionSort_Sorted_Unique, wmv::algorithms::insertion_sort, STANDARDPARAMS);
-//
-//REVERSESORTED_UNIQUE(BM_InsertionSort_ReverseSorted_Unique, wmv::algorithms::insertion_sort, SLOWPARAMS);
-//
-//RANDOM_UNIQUE(BM_InsertionSort_Random_Unique, wmv::algorithms::insertion_sort, SLOWPARAMS);
-//
-//
-//// HEAP SORT BENCHMARKS
-//SORTED_UNIQUE(BM_HeapSort_Sorted_Unique, wmv::algorithms::heap_sort, STANDARDPARAMS);
-//
-//REVERSESORTED_UNIQUE(BM_HeapSort_ReverseSorted_Unique, wmv::algorithms::heap_sort, STANDARDPARAMS);
-//
-//RANDOM_UNIQUE(BM_HeapSort_Random_Unique, wmv::algorithms::heap_sort, STANDARDPARAMS);
-//
-//
-//// MERGE SORT BENCHMARKS
-//SORTED_UNIQUE(BM_MergeSort_Sorted_Unique, wmv::algorithms::merge_sort, STANDARDPARAMS);
-//
-//REVERSESORTED_UNIQUE(BM_MergeSort_ReverseSorted_Unique, wmv::algorithms::merge_sort, STANDARDPARAMS);
-//
-//RANDOM_UNIQUE(BM_MergeSort_Random_Unique, wmv::algorithms::merge_sort, STANDARDPARAMS);
-//
-//
-//// QUICK SORT BENCHMARKS
-//SORTED_UNIQUE(BM_QuickSort_Sorted_Unique, wmv::algorithms::quick_sort, SLOWPARAMS);
-//
-//REVERSESORTED_UNIQUE(BM_QuickSort_ReverseSorted_Unique, wmv::algorithms::quick_sort, SLOWPARAMS);
-//
-//RANDOM_UNIQUE(BM_QuickSort_Random_Unique, wmv::algorithms::quick_sort, STANDARDPARAMS);
+SORTED_UNIQUE(BM_StdSort_Sorted_Unique, std::ranges::sort, STANDARDPARAMS);
+
+REVERSESORTED_UNIQUE(BM_StdSort_ReverseSorted_Unique, std::ranges::sort, STANDARDPARAMS);
+
+RANDOM_UNIQUE(BM_StdSort_Random_Unique, std::ranges::sort, STANDARDPARAMS);
+
+
+// INSERTION SORT BENCHMARKS
+SORTED_UNIQUE(BM_InsertionSort_Sorted_Unique, wmv::algorithms::insertion_sort, STANDARDPARAMS);
+
+REVERSESORTED_UNIQUE(BM_InsertionSort_ReverseSorted_Unique, wmv::algorithms::insertion_sort, SLOWPARAMS);
+
+RANDOM_UNIQUE(BM_InsertionSort_Random_Unique, wmv::algorithms::insertion_sort, SLOWPARAMS);
+
+
+// HEAP SORT BENCHMARKS
+SORTED_UNIQUE(BM_HeapSort_Sorted_Unique, wmv::algorithms::heap_sort, STANDARDPARAMS);
+
+REVERSESORTED_UNIQUE(BM_HeapSort_ReverseSorted_Unique, wmv::algorithms::heap_sort, STANDARDPARAMS);
+
+RANDOM_UNIQUE(BM_HeapSort_Random_Unique, wmv::algorithms::heap_sort, STANDARDPARAMS);
+
+
+// MERGE SORT BENCHMARKS
+SORTED_UNIQUE(BM_MergeSort_Sorted_Unique, wmv::algorithms::merge_sort, STANDARDPARAMS);
+
+REVERSESORTED_UNIQUE(BM_MergeSort_ReverseSorted_Unique, wmv::algorithms::merge_sort, STANDARDPARAMS);
+
+RANDOM_UNIQUE(BM_MergeSort_Random_Unique, wmv::algorithms::merge_sort, STANDARDPARAMS);
+
+
+// QUICK SORT BENCHMARKS
+SORTED_UNIQUE(BM_QuickSort_Sorted_Unique, wmv::algorithms::quick_sort, SLOWPARAMS);
+
+REVERSESORTED_UNIQUE(BM_QuickSort_ReverseSorted_Unique, wmv::algorithms::quick_sort, SLOWPARAMS);
+
+RANDOM_UNIQUE(BM_QuickSort_Random_Unique, wmv::algorithms::quick_sort, STANDARDPARAMS);
 
 // RANDOMIZED QUICK SORT
 SORTED_UNIQUE(BM_RandomizedQuickSort_Sorted_Unique, wmv::algorithms::randomized_quick_sort, STANDARDPARAMS);
@@ -156,6 +158,14 @@ REVERSESORTED_UNIQUE(BM_RandomizedQuickSort_ReverseSorted_Unique, wmv::algorithm
 					 STANDARDPARAMS);
 
 RANDOM_UNIQUE(BM_RandomizedQuickSort_Random_Unique, wmv::algorithms::randomized_quick_sort, STANDARDPARAMS);
+
+// RADIX SORT
+SORTED_UNIQUE(BM_RadixSort_Sorted_Unique, wmv::algorithms::radix_sort, STANDARDPARAMS);
+
+REVERSESORTED_UNIQUE(BM_RadixSort_ReverseSorted_Unique, wmv::algorithms::radix_sort,
+					 STANDARDPARAMS);
+
+RANDOM_UNIQUE(BM_RadixSort_Random_Unique, wmv::algorithms::radix_sort, STANDARDPARAMS);
 
 
 BENCHMARK_MAIN();

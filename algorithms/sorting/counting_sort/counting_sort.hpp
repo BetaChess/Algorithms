@@ -5,7 +5,7 @@
 #include <cstring>
 
 #ifndef RADIX_BASE
-#define RADIX_BASE 10
+#define RADIX_BASE 100
 #endif
 
 

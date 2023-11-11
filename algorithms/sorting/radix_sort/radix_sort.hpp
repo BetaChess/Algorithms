@@ -9,6 +9,9 @@ namespace wmv::algorithms
 template<std::ranges::random_access_range R>
 void radix_sort(R &r)
 {
+	if (std::ranges::size(r) < 2)
+		return;
+	
 	typedef typename std::remove_reference_t<typename std::remove_reference_t<decltype(r)>::value_type> range_elem_type;
 	auto* aux = new range_elem_type[std::ranges::size(r)];
 	std::span s{aux, std::ranges::size(r)};
