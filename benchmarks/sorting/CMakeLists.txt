@@ -5,11 +5,12 @@ project("sorting_benchmark")
 add_executable(${PROJECT_NAME} "sorting_benchmark.cpp")
 
 target_include_directories(${PROJECT_NAME}
-        PRIVATE ../vendor/benchmark/include
+        PUBLIC ../../vendor/benchmark/include
+        PUBLIC ../../src
 )
 
 target_link_directories(${PROJECT_NAME}
-        PRIVATE ../vendor/benchmark
+        PRIVATE ../../vendor/benchmark
 )
 
 target_link_libraries(${PROJECT_NAME}

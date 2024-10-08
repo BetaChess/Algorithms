@@ -26,6 +26,5 @@ add_subdirectory("vendor/googletest")
 add_subdirectory("vendor/benchmark")
 
 # Include sub-projects.
-add_subdirectory("algorithms")
 add_subdirectory("benchmarks")
 add_subdirectory("testing")

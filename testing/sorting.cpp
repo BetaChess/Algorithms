@@ -3,12 +3,12 @@
 #include <algorithm>
 #include <ranges>
 
-#include "../algorithms/sorting/heap_sort/heap_sort.hpp"
-#include "../algorithms/sorting/insertion_sort/insertion_sort.hpp"
-#include "../algorithms/sorting/merge_sort/merge_sort.hpp"
-#include "../algorithms/sorting/quick_sort/quick_sort.hpp"
-#include "../algorithms/sorting/counting_sort/counting_sort.hpp"
-#include "../algorithms/sorting/radix_sort/radix_sort.hpp"
+#include "sorting/heap_sort.hpp"
+#include "sorting/insertion_sort.hpp"
+#include "sorting/merge_sort.hpp"
+#include "sorting/quick_sort.hpp"
+#include "sorting/counting_sort.hpp"
+#include "sorting/radix_sort.hpp"
 
 
 float pcg_random(uint32_t &seed)

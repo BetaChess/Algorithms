@@ -1,7 +1,7 @@
 #pragma once
 
 #include <algorithm>
-#include "../counting_sort/counting_sort.hpp"
+#include "counting_sort.hpp"
 
 namespace wmv::algorithms
 {
@@ -37,7 +37,7 @@ void radix_sort(R &r)
 //		counting_sort(s, r, static_cast<uint8_t>(i + 1));
 //	}
 
-//	delete[] aux;
+	delete[] aux;
 }
 
 }// namespace wmv::algorithms

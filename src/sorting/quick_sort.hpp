@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../util/random.hpp"
+#include "../util/random.hpp"
 
 #include <vector>
 

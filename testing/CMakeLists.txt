@@ -6,10 +6,9 @@ project("tests")
 add_executable(${PROJECT_NAME} "sorting.cpp")
 
 
-include_directories(".")
-
 target_include_directories(${PROJECT_NAME}
         PUBLIC ../../vendor/googletest/googletest/include
+        PUBLIC ../src
 )
 
 target_link_directories(${PROJECT_NAME}
